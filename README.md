@@ -42,7 +42,7 @@
 ## data와 v-if, v-else
 * 데이터에 따라 이벤트, 조건문을 적용하는 방법을 설명
 * v-on:
-  - methods에 있는 함수와 click 이벤트를 연결 하는 방법
+  - methods에 있는 함수와 여러가지 이벤트를 연결 하는 방법
   - v-on:click"함수명"
 * v-if
   - if, else 는 동등한 형제태그이고 붙어있어야한다.
@@ -50,7 +50,58 @@
 * v-else
   - v-if에서 data에 따라 아닐경우 else로 빠짐
 ## 보간법과 v-model
-* 
+* 구구단 html을 사용하여 보간법과 v-model 을 알아보기
+* 보간법
+  - 중괄호 두번으로 data에 있는 값을 html에 표한할 수 있다. {{ }}
+```
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>구구단</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<div id="root">
+    <div>{{first}}곱하기 {{second}}는?</div>
+    <form v-on:submit="onSubmitForm">
+        <input type="number" ref="answer" v-model="value">
+        <button type="submit">입력</button>
+    </form>
+    <div id="result">{{result}}</div>
+</div>
+<script>
+  const app = new Vue({
+    el: '#root',
+    data: {
+      first: Math.ceil(Math.random() * 9),
+      second: Math.ceil(Math.random() * 9),
+      value: '',
+      result: '',
+    },
+    methods: {
+      onSubmitForm(e) {
+        e.preventDefault();
+        if (this.first * this.second === parseInt(this.value)) {
+          this.result = '정답';
+          this.first = Math.ceil(Math.random() * 9);
+          this.second = Math.ceil(Math.random() * 9);
+          this.value = '';
+          this.$refs.answer.focus();
+        } else {
+          this.result = '땡';
+          this.value = '';
+          this.$refs.answer.focus();
+        }
+      },
+    },
+  });
+</script>
+</body>
+</html>
+```
 
 
 
