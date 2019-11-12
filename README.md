@@ -39,7 +39,18 @@
 </script>
 </html>
 ```
-
+## data와 v-if, v-else
+* 데이터에 따라 이벤트, 조건문을 적용하는 방법을 설명
+* v-on:
+  - methods에 있는 함수와 click 이벤트를 연결 하는 방법
+  - v-on:click"함수명"
+* v-if
+  - if, else 는 동등한 형제태그이고 붙어있어야한다.
+  - v-if="data값"
+* v-else
+  - v-if에서 data에 따라 아닐경우 else로 빠짐
+## 보간법과 v-model
+* 
 
 
 
