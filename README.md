@@ -1,2 +1,2 @@
-# vue ±âÃÊ°­ÁÂ (https://www.youtube.com/watch?v=TIHluPn05VY&list=PLcqDmjxt30RsdnPeU0ogHFMoggSQ_d7ao)
-## vue nodebird À¯·á°­ÁÂ Àü ¼±¼ö ¹«·á °­ÁÂ.
+# vue ê¸°ì´ˆê°•ì¢Œ (https://www.youtube.com/watch?v=TIHluPn05VY&list=PLcqDmjxt30RsdnPeU0ogHFMoggSQ_d7ao)
+## vue nodebird ìœ ë£Œê°•ì¢Œ ì „ ì„ ìˆ˜ ë¬´ë£Œ ê°•ì¢Œ.
