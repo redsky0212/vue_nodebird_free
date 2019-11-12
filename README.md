@@ -237,9 +237,48 @@
 
 ## props와 웹팩의 필요성
 * 컴포넌트는 공통되는 부분 외에 달라지는 부분을 적용할때 props를 사용한다.
+* 컴포넌트 tag에는 start-word="값" 이렇게 케밥케이스로 넣어주고 props: ['startWord'] 이와같이 카멜케이스 형식으로 text로 넣어준다.
+  - 이와같이 되었으면 this.startWord 와 같이 가져와서 쓸 수 있다.
+* 웹팩을 사용하지 않고 스크립트를 작성하면 위 소스와 같이 script가 많이지고 복잡해진다.
+  - 그래서 웹팩을 사용하여 script를 파일로 분리해서 코딩하면 추 후 build과정에 하나로 합쳐준다.
+
+## 웹팩 사용하기
+* node(npm) 설치
+* cmd창에서 프로젝트 폴더 생성 후 해당 폴더에서 npm init 
+* npm i vue 설치
+* npm i webpack webpack-cli -D 웹팩 설치 (개발) -D 와 --save-dev 같음.
+* root폴더에 webpack.config.js를 생성
+  - 크게 4개 중요 **entry, module, plugins, output**
+```
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const path = require('path');
+
+module.exports = {      // node의 모듈을 만든다.
+  mode: 'development',  
+  devtool: 'eval',
+  resolve: {
+    extensions: ['.js', '.vue'],
+  },
+  entry: {              // 하나로 합쳐줄 app.js파일의 진입시점 js파일 main.js파일 
+    app: path.join(__dirname, 'main.js'),
+  },
+  module: {         // 웹팩의 핵심
+    rules: [{       // 합칠때의 규칙을 작성
+      test: /\.vue$/,
+      use: 'vue-loader',
+    }],
+  },
+  plugins: [
+    new VueLoaderPlugin(),
+  ],
+  output: {                 // 나중에 합쳐줄 파일명, 위치 등등
+    filename: '[name].js',      // 합쳐줄 파일(entry에 app이라고 적었기 때문에 [name] 와 같이 넣어줘도 된다. 아니면 app.js라고 해도 된다)
+    path: path.join(__dirname, 'dist'), // 합쳐줄 폴더
+  },
+};
+```
+## 프로젝트 구조와 웹팩빌드
 * 
-
-
 
 # 기타 참조할만한 강의
 ## youtube
