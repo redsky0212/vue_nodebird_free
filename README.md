@@ -105,7 +105,13 @@
 </body>
 </html>
 ```
-
+## ref와 구구단 완성
+* data, methods등은 this로 접근가능
+* 특정 tag element에 접근하는 방법 ref
+  - 원하는 element에 ref="이름지정"
+  - 사용시에는 this.$refs.이름지정 : 이런식으로 접근가능 
+## 끝말잇기 만들며 복습
+* 
 
 
 
