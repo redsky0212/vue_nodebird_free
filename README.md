@@ -7,6 +7,7 @@
   - 기본원리를 잘 알기 위함.
 * 공식문서 먼저 읽어보기 (https://kr.vuejs.org/v2/guide/index.html)
 * 먼저 cdn으로 html에서 불러와서 만들어보기
+  - 우선 간단한 좋아요 버튼 클릭 html페이지를 만든다.
 ```
 <html>
 <head>
@@ -14,46 +15,28 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>구구단</title>
+    <title>좋아요</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
 <div id="root">
-    <div>{{first}}곱하기 {{second}}는?</div>
-    <form v-on:submit="onSubmitForm">
-        <input type="number" ref="answer" v-model="value">
-        <button type="submit">입력</button>
-    </form>
-    <div id="result">{{result}}</div>
+    <div v-if="liked">좋아요 눌렀음</div>
+    <button v-else v-on:click="onClickButton">Like</button>
 </div>
+</body>
 <script>
   const app = new Vue({
     el: '#root',
     data: {
-      first: Math.ceil(Math.random() * 9),
-      second: Math.ceil(Math.random() * 9),
-      value: '',
-      result: '',
+      liked: false,
     },
     methods: {
-      onSubmitForm(e) {
-        e.preventDefault();
-        if (this.first * this.second === parseInt(this.value)) {
-          this.result = '정답';
-          this.first = Math.ceil(Math.random() * 9);
-          this.second = Math.ceil(Math.random() * 9);
-          this.value = '';
-          this.$refs.answer.focus();
-        } else {
-          this.result = '땡';
-          this.value = '';
-          this.$refs.answer.focus();
-        }
+      onClickButton() {
+        this.liked = true;
       },
     },
   });
 </script>
-</body>
 </html>
 ```
 
