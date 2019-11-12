@@ -52,7 +52,10 @@
 ## 보간법과 v-model
 * 구구단 html을 사용하여 보간법과 v-model 을 알아보기
 * 보간법
-  - 중괄호 두번으로 data에 있는 값을 html에 표한할 수 있다. {{ }}
+  - 중괄호 두번으로 data에 있는 값을 html에 표시할 수 있다. {{ }}
+* v-model
+  - data의 값과 태그상에 data를 연결해주는 방법 v-model
+  - 아래 소스에서는 input에 걸려있는 v-model로 인하여 data의 value가 바뀌게 된다.
 ```
 <html>
 <head>
