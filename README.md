@@ -399,7 +399,190 @@ new Vue(NumberBaseball).$mount('#root');
 ## v-for로 반복문 사용
 * 숫자야구 관련 컴포넌트 코딩 시작. 소스는 위 참조.
 * 숫자야구 시도한 숫자만큼의 배열을 v-for로 반복하여 보이게 간단한 코딩
-  - &lt;li v-for="t in tries"&gt;{{t}}&lt;/li&gt;
+  - &lt;li v-for="t in tries" :key="t.try"&gt;{{t}}&lt;/li&gt;
+* 참고로 현재까지 작업 내용은 수정됬을때 마다 build를 계속 해줘야 함. (npm run build) - 불편함을 체험... 추 후 자동빌드 셋팅 해줄꺼임.
+* v-on은 @로 바꿀수 있음 v-on:submit == @submit  또한 event.preventDefault()는 @submit.prevent 로 사용할 수 있다.
+
+## 숫자야구 완성하기
+* 위 완성 코딩 참조.
+* let변수를 사용할때와 data에 넣을때의 차이는 화면에서 사용하느냐 아니냐의 차이.
+* methods에는 현재 화면과 연관이 있는 함수들만 넣어주고 공통적인 함수들은 따로 빼서 관리한다.
+
+## webpack watch 와 반응속도 체크
+* javascript 아닌 것들을 추가 할때마다 webpack의 rules에 loader를 추가해주면 webpack이 알아서 js output으로 합쳐서 만들어줌. (css, image, html 등)
+* webpack.config.js의 현재까지 큰 틀에서 추가 옵션들을 하나씩 추가해 나가면서 적용하면 됨.
+* 반응속도체크 프로젝트를 새로 생성.
+* 프로젝트 새로 생성하는 과정에 설정되어야 하는 여러가지에 대한 설명
+  - git 에 올려질때는 node_modules, dist 등 올리지 말아야 하는 파일 폴더들은 .gitignore파일을 만들어 관리한다.
+  - package.json파일에 들어있는 모듈들을 다시 설치 해야 하므로 프로젝트 생성 후 해당 폴더에서 npm i 를 해줌.
+* 파일 수정될때마다 알아서 build해주는 설정은 webpack.config.js의 scripts설정에 "build": "webpack --watch", 이런식으로 watch기능을 사용할 수 있다.
+
+## v-bind와 vue style 
+* 각 컴포넌트의 style부분에 css소스를 넣고 화면tag에서는 class로 사용하여 적용할 수 있다.
+  - 하지만 style을 사용 하려면 vue-loader만 가지고는 안되므로 npm i vue-style-loader css-loader -D 가 추가 되어야 한다. 그리고 webpack.config.js에 rules에 추가한다.
+  - 또한 class는 단순 attribute이므로 class에 data값을 넣고 싶을때는 v-bind:class="data명" 으로 해서 넣어주면 해당 data를 사용할 수 있다.
+  - v-bind:class=  이런 형식은 :class= 와 같은 방법(축약형)으로 사용할 수 있다.
+  - 컴포넌트의 style태그에 **scoped**속성을 넣으면 해당 컴포넌트만 적용되는 style이 된다.
+* 수정된 webpack.config.js 파일 참조
+```
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const path = require('path');
+
+module.exports = {
+  mode: 'development',
+  devtool: 'eval',
+  resolve: {
+    extensions: ['.js', '.vue'],
+  },
+  entry: {
+    app: path.join(__dirname, 'main.js'),
+  },
+  module: {
+    rules: [{
+      test: /\.vue$/,
+      use: 'vue-loader',
+    }, {
+      test: /\.css$/,
+      use: [
+        'vue-style-loader',
+        'css-loader',
+      ]
+    }],
+  },
+  plugins: [
+    new VueLoaderPlugin(),
+  ],
+  output: {
+    filename: '[name].js',
+    path: path.join(__dirname, 'dist'),
+    publicPath: '/dist',
+  },
+};
+```
+
+## webpack-dev-server 
+* 소스 수정이 생기면 watch에서 바로 빌드 해주므로 화면에서는 새로고침만 해주면 됨.
+* 새로고침도 자동으로 해줬으면 한다... 
+  - npm i webpack-dev-server -D 설치 후 package.json의 scripts에 dev서버로 돌리는 코딩을 한다.
+  - 또한 webpack.config.js에 output에 publicPath를 추가해서 시작 위치를 정해준다.
+```
+{
+  "name": "response-check",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --watch",
+    "dev": "webpack-dev-server --hot"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "^2.6.10"
+  },
+  "devDependencies": {
+    "css-loader": "^3.0.0",
+    "vue-loader": "^15.7.0",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.35.2",
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.2"
+  }
+}
+```
+
+## 반응속도체크 게임 완성하기
+* ResponseCheck.vue 컴포넌트 소스
+```
+<template>
+  <div>
+    <div id="screen" :class="state" @click="onClickScreen">{{message}}</div>
+    <template v-if="result.length">
+      <div>평균 시간: {{average}}ms</div>
+      <button @click="onReset">리셋</button>
+    </template>
+  </div>
+</template>
+
+<script>
+  let startTime = 0;
+  let endTime = 0;
+  let timeout = null;
+  export default {
+    data() {
+      return {
+        result: [],
+        state: 'waiting',
+        message: '클릭해서 시작하세요.',
+      };
+    },
+    computed: {
+      average() {
+        return this.result.reduce((a, c) => a + c, 0) / this.result.length || 0;
+      }
+    },
+    methods: {
+      onReset() {
+        this.result = [];
+      },
+      onClickScreen() {
+        if (this.state === 'waiting') {
+          this.state = 'ready';
+          this.message = '초록색이 되면 클릭하세요.';
+          timeout = setTimeout(() => {
+            this.state = 'now';
+            this.message = '지금 클릭!';
+            startTime = new Date();
+          }, Math.floor(Math.random() * 1000) + 2000); // 2~3초
+        } else if (this.state === 'ready') {
+          clearTimeout(timeout);
+          this.state = 'waiting';
+          this.message = '너무 성급하시군요! 초록색이 된 후에 클릭하세요.'
+        } else if (this.state === 'now') {
+          endTime = new Date();
+          this.state = 'waiting';
+          this.message = '클릭해서 시작하세요.';
+          this.result.push(endTime - startTime);
+        }
+      }
+    },
+  };
+</script>
+
+<style scoped>
+  #screen {
+     width: 300px;
+     height: 200px;
+     text-align: center;
+     user-select: none;
+   }
+  #screen.waiting {
+    background-color: aqua;
+  }
+  #screen.ready {
+    background-color: red;
+    color: white;
+  }
+  #screen.now {
+    background-color: greenyellow;
+  }
+</style>
+```
+
+## computed와 v-show, template
+* 계산하는 소스들 가공처리 할때는 tag쪽에서 하지말고  computed에서 처리한다.
+  - 계산하는 소스들을 template tag에 넣으면 매번 binding된 data가 달라질때 마다 계속 다시 계산하고 소스가 다시 실행 되므로 비용이 많이 든다.
+  - 이럴때 computed를 사용하면 연관이 없는 data가 변화 할때는 해당 computed값은 변화하지 않는다. 캐싱되어있으므로 성능상에 개선이 된다.
+* v-show는 true, false냐에 따라 보이고 안보이고 처리가 된다.
+  - v-show와 v-if의 차이는 해당 tag가 있으면서 display:none이면 v-show이고 아예 태그 자체가 없으면 v-if이다.
+* 딱히 필요없는 div태그들(감싸주는 용도)은 template을 사용한다. template태그는 없는샘 치는 태그이다.
+  - 가장 상위 template태그 바로 밑 자식 tag는 template을 또 사용할 수 없다.
+
+## vue-devtools와 기타정보
+* 확장프로그램에서 chrome vue devtools설치 (https://chrome.google.com/webstore/search/vue?hl=ko)
+* 배포환경에서 vue-devtools를 못 보게 하기 셋팅 Vue.config.devtools = false;
+
 
 # 기타 참조할만한 강의
 ## youtube
