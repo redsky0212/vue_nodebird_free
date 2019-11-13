@@ -582,7 +582,136 @@ module.exports = {
 ## vue-devtools와 기타정보
 * 확장프로그램에서 chrome vue devtools설치 (https://chrome.google.com/webstore/search/vue?hl=ko)
 * 배포환경에서 vue-devtools를 못 보게 하기 셋팅 Vue.config.devtools = false;
+* 가위바위보 프로젝트 진행.
+* 컴포넌트 이름은 항상 두단어 이상으로 만든다. 뷰공식문서 필수사항. 컴포넌트를 tag에서 사용하는데 하나의 단어만 사용하면 헷갈릴수 있음.
+* webpack-dev-server가 실행되면 실제로 output이 dist/app.js가 없어도 build파일이 가상의 메모리에 만들어져서 가져와 실행하기때문에 실제 app.js를 사용하지 않는다
+  - output에 설정을 해준 그 파일 형식으로 만들어서 하기때문에 webpack설정을 잘 해줘야 한다.
+  - 실제 dist에 파일로 생성 하려면 npm run build해야한다.
 
+## :class와 :style
+* 가위바위보 프로젝트 진행.
+* 가위바위보 컴포넌트 파일
+  - :class에 값을 json으로 넣을 수 있는데 해당 class명의 값에 true, false냐에 따라 적용할지 말지 정할 수 있다.
+    - :class="{state:true, test:false}" // test는 아예들어가지 않는다.
+  - :style에 json으로 값을 넣을때는 카멜케이스로 넣어준다.
+    - 또한 computed로 넣을 수 있는데 해당 computed값에서는 객체를 return해준다.
+```
+<template>
+  <div>
+    <div id="computer" :style="computedStyleObject"></div>
+    <div>
+      <button @click="onClickButton('바위')">바위</button>  // 해당 함수에 인자를 넘겨줄 수도 있다.
+      <button @click="onClickButton('가위')">가위</button>  // 리엑트에서는 이렇게 하면 안됨.
+      <button @click="onClickButton('보')">보</button>
+    </div>
+    <div>{{result}}</div>
+    <div>현재 {{score}}점</div>
+  </div>
+</template>
+
+<script>
+  const rspCoords = {
+    바위: '0',
+    가위: '-142px',
+    보: '-284px',
+  };
+
+  const scores = {
+    가위: 1,
+    바위: 0,
+    보: -1,
+  };
+
+  const computerChoice = (imgCoord) => {
+    return Object.entries(rspCoords).find(function (v) {
+      return v[1] === imgCoord;
+    })[0];
+  };
+
+  let interval = null;
+  export default {
+    data() {
+      return {
+        imgCoord: rspCoords.바위,
+        result: '',
+        score: 0,
+      };
+    },
+    computed: {
+      computedStyleObject() {
+        return {
+          background: `url(https://en.pimg.jp/023/182/267/1/23182267.jpg) ${this.imgCoord} 0`,
+        };
+      }
+    },
+    methods: {
+      changeHand() {
+        interval = setInterval(() => {
+          if (this.imgCoord === rspCoords.바위) {
+            this.imgCoord = rspCoords.가위;
+          } else if (this.imgCoord === rspCoords.가위) {
+            this.imgCoord = rspCoords.보;
+          } else if (this.imgCoord === rspCoords.보) {
+            this.imgCoord = rspCoords.바위;
+          }
+        }, 100);
+      },
+      onClickButton(choice) {
+        clearInterval(interval);
+        const myScore = scores[choice];
+        const cpuScore = scores[computerChoice(this.imgCoord)];
+        const diff = myScore - cpuScore;
+        if (diff === 0) {
+          this.result = '비겼습니다.';
+        } else if ([-1, 2].includes(diff)) {
+          this.result = '이겼습니다.';
+          this.score += 1;
+        } else {
+          this.result = '졌습니다.';
+          this.score -= 1;
+        }
+        setTimeout(() => {
+          this.changeHand();
+        }, 1000);
+      },
+    },
+    beforeCreate() {
+      console.log('beforeCreate');
+    },
+    created() {
+      console.log('created');
+    },
+    beforeMount() {
+      console.log('beforeMount');
+    },
+    mounted() {
+      console.log('mounted');
+      this.changeHand();
+    },
+    beforeUpdate() {
+      console.log('beforeUpdate');
+    },
+    updated() {
+      console.log('updated');
+    },
+    beforeDestroy() {
+      console.log('beforeDestroy');
+      clearInterval(interval);
+    },
+    destroyed() {
+      console.log('destroyed');
+    },
+  };
+</script>
+
+<style scoped>
+  #computer {
+    width: 142px;
+    height: 200px;
+    background-position: 0 0;
+  }
+</style>
+```
 
 # 기타 참조할만한 강의
 ## youtube
