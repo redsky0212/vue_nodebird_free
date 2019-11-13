@@ -254,21 +254,21 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const path = require('path');
 
 module.exports = {      // node의 모듈을 만든다.
-  mode: 'development',  
-  devtool: 'eval',
-  resolve: {
-    extensions: ['.js', '.vue'],
+  mode: 'development',  // 개발버전, 실서비스(production)
+  devtool: 'eval',      // 개발버전, 실서비스(hidden-source-map ? 확인해봐야함)
+  resolve: {        // 확장자 처리
+    extensions: ['.js', '.vue'],    // js, vue를 처리한다.(코딩시 .vue와 같이 확장자를 안써줘도 됨)
   },
   entry: {              // 하나로 합쳐줄 app.js파일의 진입시점 js파일 main.js파일 
     app: path.join(__dirname, 'main.js'),
   },
   module: {         // 웹팩의 핵심
-    rules: [{       // 합칠때의 규칙을 작성
+    rules: [{       // 합칠때의 규칙을 작성 (webpack의 추가 처리 사항))
       test: /\.vue$/,
       use: 'vue-loader',
     }],
   },
-  plugins: [
+  plugins: [      // 모듈들 처리 완료시 플러그인으로 한번 더 가공처리(후처리)한다고 생각하면됨
     new VueLoaderPlugin(),
   ],
   output: {                 // 나중에 합쳐줄 파일명, 위치 등등
@@ -386,6 +386,18 @@ new Vue(NumberBaseball).$mount('#root');
       **module: { rules: [{test: /\.vue$/, use: 'vue-loader', }], },**
     - rules로 설정한 .vue를 읽는 **vue-loader**를 사용했으므로 설치를 해야한다. npm i vue-loader -D  그리고 webpack.config.js상단에 const VueLoaderPlugin = require('vue-loader/lib/plugin');불러와서 plugins부분에 plugins: [ new VueLoaderPlugin(),], 해줘야 함.
     - 앞으로 .vue파일은 설치한 vue-loader가 읽어주므로 에러없이 잘 됨.
+    - 다음 에러 vue-template-compiler를 설치하라고 함. npm i vue-template-compiler -D 설치. (이것은 vue와 버전이 같아야 한다.)
+    - 여기까지 진행시 에러가 없어야 함.
+    - npm run build하면 dist/app.js 생김. 하지만 소스가 읽기 힘들게 합쳐짐. 그래서 webpack설정을 세부적으로 설정하여 적용 할 수 있다.
+      - webpack.config.js 설정에서 mode: 'development', devtool:'eval', resolve 등 설정을 한다. 
+      - 현재까지 설정은 파일 내용이 달라졌을때 build를 꼭 해줘야 함.
+      - 현재까지 하면 dist/app.js파일이 없다고 에러가 남. 결과 app.js파일 경로를 바꿔야 할것으로 보임.
+
+## webpack 로더 사용하기
+* 위 에러 처리 과정에 vue-loader를 설치하는 과정 참조.
+
+## v-for로 반복문 사용
+* 
 
 # 기타 참조할만한 강의
 ## youtube
