@@ -377,7 +377,7 @@ new Vue(NumberBaseball).$mount('#root');
 
 </style>
 ```
-  - 만들어놓은 html을 실행하기 위해서는 package.json에 'scripts'부분에 'build'(webpack)를 셋팅한다. 
+  - 만들어놓은 html을 실행하기 위해서는 package.json에 'scripts'부분에 'build'(webpack)를 셋팅한다. "scripts": {"build": "webpack"}
   - npm run build시 에러가 나면 하나씩 해결해 나간다.
   - path가 맞지 않으므로 const path = require('path'); 로 가져와서 경로 부분에 적절히 셋팅한다.(webpack.config.js)
   - main.js에서 컴포넌트를 불러와 연결(import NumberBaseball from './NumberBaseball';)해줄때 에러가 발생한다.
