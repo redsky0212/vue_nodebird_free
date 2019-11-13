@@ -278,7 +278,113 @@ module.exports = {      // node의 모듈을 만든다.
 };
 ```
 ## 프로젝트 구조와 웹팩빌드
-* 
+* main.js파일 코딩
+  - vue를 import로 가져와서 new Vue와 같이 인스턴스를 만들어서 루트element'#root'를 넣어준다.
+  - NumberBaseball는 vue 컴포넌트이다.
+  - el 역할을 $mount가 대신 해줌.
+```
+import Vue from 'vue';
+import NumberBaseball from './NumberBaseball';
+
+new Vue(NumberBaseball).$mount('#root');
+```
+  - NumberBaseball.vue 컴포넌트
+  - .vue 컴포넌트 파일은 template, script, style로 나눠져 코딩할 수 있게 되어있다.
+  - 기존 컴포넌트 소스를 코딩한다.(zen코딩(현재는 emmet)으로 코딩하면 편리함)
+```
+<template>
+  <div>
+    <h1>{{result}}</h1>
+    <form @submit.prevent="onSubmitForm">
+      <input ref="answer" minlength="4" maxlength="4" v-model="value" />
+      <button type="submit">입력</button>
+    </form>
+    <div>시도: {{tries.length}}</div>
+    <ul>
+      <li v-for="t in tries" :key="t.try">
+        <div>{{t.try}}</div>
+        <div>{{t.result}}</div>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+  const getNumbers = () => {
+    const candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const array = [];
+    for (let i = 0; i < 4; i += 1) {
+      const chosen = candidates.splice(Math.floor(Math.random() * (9 - i)), 1)[0];
+      array.push(chosen);
+    }
+    return array;
+  };
+
+  export default {
+    data() {
+      return {
+        answer: getNumbers(), // ex) [1,5,3,4]
+        tries: [], // 시도 수
+        value: '', // 입력
+        result: '', // 결과
+      }
+    },
+    methods: {
+      onSubmitForm() {
+        if (this.value === this.answer.join('')) { // 정답 맞췄으면
+          this.tries.push({
+            try: this.value,
+            result: '홈런',
+          });
+          this.result = '홈런';
+          alert('게임을 다시 실행합니다.');
+          this.value = '';
+          this.answer = getNumbers();
+          this.tries = [];
+          this.$refs.answer.focus();
+        } else { // 정답 틀렸을 때
+          if (this.tries.length >= 9) { // 10번째 시도
+            this.result = `10번 넘게 틀려서 실패! 답은 ${this.answer.join(',')}였습니다!`;
+            alert('게임을 다시 시작합니다.');
+            this.value = '';
+            this.answer = getNumbers();
+            this.tries = [];
+            this.$refs.answer.focus();
+          }
+          let strike = 0;
+          let ball = 0;
+          const answerArray = this.value.split('').map(v => parseInt(v));
+          for (let i = 0; i < 4; i += 1) {
+            if (answerArray[i] === this.answer[i]) { // 숫자 자릿수 모두 정답
+              strike++;
+            } else if (this.answer.includes(answerArray[i])) { // 숫자만 정답
+              ball++;
+            }
+          }
+          this.tries.push({
+            try: this.value,
+            result: `${strike} 스트라이크, ${ball} 볼입니다.`,
+          });
+          this.value = '';
+          this.$refs.answer.focus();
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+
+</style>
+```
+  - 만들어놓은 html을 실행하기 우해서는 package.json에 'scripts'부분에 'build'(webpack)를 셋팅한다. 
+  - npm run build시 에러가 나면 하나씩 해결해 나간다.
+  - path가 맞지 않으므로 const path = require('path'); 로 가져와서 경로 부분에 적절히 셋팅한다.(webpack.config.js)
+  - main.js에서 컴포넌트를 불러와 연결(import NumberBaseball from './NumberBaseball';)해줄때 에러가 발생한다.
+    - 이유는 webpack이 config에 설정되어있는 걸 읽을때 최초 main.js를 먼저 읽는다. 
+    - main.js안에 .vue파일의 컴포넌트를 읽을때 javascript가 아닌 코딩파일이므로 webpack.config.js에 rules를 설정해준다.
+      **module: { rules: [{test: /\.vue$/, use: 'vue-loader', }], },**
+    - rules로 설정한 .vue를 읽는 **vue-loader**를 사용했으므로 설치를 해야한다. npm i vue-loader -D 
 
 # 기타 참조할만한 강의
 ## youtube
