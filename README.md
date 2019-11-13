@@ -397,7 +397,9 @@ new Vue(NumberBaseball).$mount('#root');
 * 위 에러 처리 과정에 vue-loader를 설치하는 과정 참조.
 
 ## v-for로 반복문 사용
-* 
+* 숫자야구 관련 컴포넌트 코딩 시작. 소스는 위 참조.
+* 숫자야구 시도한 숫자만큼의 배열을 v-for로 반복하여 보이게 간단한 코딩
+  - &lt;li v-for="t in tries"&gt;{{t}}&lt;/li&gt;
 
 # 기타 참조할만한 강의
 ## youtube
