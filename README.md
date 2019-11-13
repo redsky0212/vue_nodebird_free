@@ -384,7 +384,7 @@ new Vue(NumberBaseball).$mount('#root');
     - 이유는 webpack이 config에 설정되어있는 걸 읽을때 최초 main.js를 먼저 읽는다. 
     - main.js안에 .vue파일의 컴포넌트를 읽을때 javascript가 아닌 코딩파일이므로 webpack.config.js에 rules를 설정해준다.
       **module: { rules: [{test: /\.vue$/, use: 'vue-loader', }], },**
-    - rules로 설정한 .vue를 읽는 **vue-loader**를 사용했으므로 설치를 해야한다. npm i vue-loader -D  그리고 webpack.config.js상단에 const VueLoaderPlugin = require('vue-loader/lib/plugin'); 해줘야 함.
+    - rules로 설정한 .vue를 읽는 **vue-loader**를 사용했으므로 설치를 해야한다. npm i vue-loader -D  그리고 webpack.config.js상단에 const VueLoaderPlugin = require('vue-loader/lib/plugin');불러와서 plugins부분에 plugins: [ new VueLoaderPlugin(),], 해줘야 함.
     - 앞으로 .vue파일은 설치한 vue-loader가 읽어주므로 에러없이 잘 됨.
 
 # 기타 참조할만한 강의
