@@ -1046,19 +1046,109 @@ module.exports = {
   - Vue에서 배열, 객체의 값을 인덱스를 이용해서 바꾸면 화면에 반영은 안됨. 하지만 method를 사용해서 바꾸면 반영이 됨.
 
 ## Vue.set, this.$set
-* 배열, 객체의 값을 인덱스를 이용해서 값을 바꾸면 화면에는 반영이 안되므로 사용하는 Vue.set
+* **배열, 객체의 값을 인덱스를 이용해서 값을 바꾸면 화면에는 반영이 안되므로 사용하는 Vue.set**
 * Vue.set(this.tableData[1], 0, 'X')
 * this.$set() // Vue.set과 동일 --- Vue를 import하지 않아도 되서 편리함.
 
 ## 틱택토 완성하기
-* 
+* this.$root, this.$parent, Vue.set, this.$set 알기
+* 컴포넌트쪼갠이유(부분렌더링처리를 위해)
 
 ## EventBus 사용하기
-* 
+* 이벤트를 중앙에서 통제하는 기능
+* EventBus.js (깡통 vue를 하나 만든다.)
+```
+import Vue from 'vue';
+
+export default new Vue();
+```
+* 사용하는 component에서 import EventBus from './EventBus';
+  - EventBus.$on('clickTd', this.onClickTd); // onClickTd메서드가 있는곳에 이렇게 등록해준다.
+  - 자식에서 이벤트를 사용하는 쪽에서는 EventBus.$emit('clickTd'); 이렇게 사용한다.
+* 단점 : 여러 이벤트를 모두 다 등록하고 메서드를 모두 연결하므로 소스가 길어짐.
 
 ## Vuex 구조 셋팅
-* 
+* store.js 소스
+  - 리덕스는 store를 하나만 만들어야 하지만 vuex는 여러개 만들어도 됨.
+  - state, getters, mutations, actions 4가지 중요.
+```
+import Vue from 'vue';
+import Vuex from 'vuex';
 
+Vue.use(Vuex); // this.$store
+// Vue.use(axios); // this.$axios
+
+export const SET_WINNER = 'SET_WINNER'; // import { SET_WINNER, CLICK_CELL, CHANGE_TURN } from './store';
+export const CLICK_CELL = 'CLICK_CELL';
+export const CHANGE_TURN = 'CHANGE_TURN';
+export const RESET_GAME = 'RESET_GAME';
+export const NO_WINNER = 'NO_WINNER';
+
+export default new Vuex.Store({ // import store from './store';
+  state: {
+    tableData: [
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', ''],
+    ],
+    turn: 'O',
+    winner: '',
+  }, // vue의 data와 비슷
+  getters: {
+    turnMessage(state) {
+      return state.turn + '님이 승리하셨습니다.';
+    },
+  }, // vue의 computed와 비슷
+  mutations: {
+    [SET_WINNER](state, winner) {
+      state.winner = winner;
+    },
+    [CLICK_CELL](state, { row, cell }) {
+      Vue.set(state.tableData[row], cell, state.turn);
+    },
+    [CHANGE_TURN](state) {
+      state.turn = state.turn === 'O' ? 'X' : 'O';
+    },
+    [RESET_GAME](state) {
+      state.turn = 'O';
+      state.tableData = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', ''],
+      ];
+    },
+    [NO_WINNER](state) {
+      state.winner = '';
+    }
+  }, // state를 수정할 때 사용해요. 동기적으로
+  actions: {}, // 비동기를 사용할때, 또는 여러 뮤테이션을 연달아 실행할 때
+});
+```
+
+## Vuex Mutations (https://vuex.vuejs.org/kr/guide/mutations.html)
+* 동기적으로 state값을 수정하는것.(함수명은 대문자로 한다.)
+  - mutation의 함수명을 변수로 빼서 사용하는게 좋음. [SET_WINNER]  ----- const SET_WINNER = 'SET_WINNER'; 오타날것을 방지하기위함.
+  - vuex도 배열,객체를 인텍스로 접근하여 값변경할때는 Vue.set을 사용해야 한다.
+  - mutation을 이용하여 state를 변경하는 이유는 ?
+  - mutation을 부를때는 commit을 사용: store를 import한 후 이렇게 사용 ( this.$store.commit(CLICK_CELL, { row: rowIndex, cell: cellIndex }); )
+
+## Vuex state 사용하기
+* 각 컴포넌트에서 store의 state데이터를 사용하기 위해서는 computed를 이용하여 store의 state를 가져온다.
+```
+import { mapState } from 'vuex';
+.
+.
+.
+computed: {
+  ...mapState(['winner', 'turn', 'tableData']),
+  // winner() {
+  //   return this.$store.state.winner;
+  // },
+  // turn() {
+  //   return this.$store.state.turn;
+  // },
+},
+```
 
 # 기타 참조할만한 강의
 ## youtube
