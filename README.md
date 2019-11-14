@@ -1068,6 +1068,8 @@ export default new Vue();
 * 단점 : 여러 이벤트를 모두 다 등록하고 메서드를 모두 연결하므로 소스가 길어짐.
 
 ## Vuex 구조 셋팅
+* vue와 vuex를 연결하는것 Vue.use(Vuex); 또한 각 컴포넌트에서 store.js를 자져와야한다. import store from './store'
+  - 그래야 this.$store를 사용할 수 있다.
 * store.js 소스
   - 리덕스는 store를 하나만 만들어야 하지만 vuex는 여러개 만들어도 됨.
   - state, getters, mutations, actions 4가지 중요.
@@ -1129,11 +1131,12 @@ export default new Vuex.Store({ // import store from './store';
 * 동기적으로 state값을 수정하는것.(함수명은 대문자로 한다.)
   - mutation의 함수명을 변수로 빼서 사용하는게 좋음. [SET_WINNER]  ----- const SET_WINNER = 'SET_WINNER'; 오타날것을 방지하기위함.
   - vuex도 배열,객체를 인텍스로 접근하여 값변경할때는 Vue.set을 사용해야 한다.
-  - mutation을 이용하여 state를 변경하는 이유는 ?
+  - mutation을 이용하여 state를 변경하는 이유는 devtool에 데이터 바뀌는것을 추적할 수 있으므로.
   - mutation을 부를때는 commit을 사용: store를 import한 후 이렇게 사용 ( this.$store.commit(CLICK_CELL, { row: rowIndex, cell: cellIndex }); )
 
 ## Vuex state 사용하기
 * 각 컴포넌트에서 store의 state데이터를 사용하기 위해서는 computed를 이용하여 store의 state를 가져온다.
+* 각 화면에서 data를 props로 넘겨준것들을 모두 store의 state값으로 바꿔준다.
 ```
 import { mapState } from 'vuex';
 .
@@ -1149,6 +1152,36 @@ computed: {
   // },
 },
 ```
+
+## mapState 사용( https://vuex.vuejs.org/kr/guide/state.html )
+* state를 쓰기 위해서 computed에 모두 함수로 연결해줘야한다... 갯수가 많아짐...
+  - 이것을 개선하기 위하여 mapState를 사용할 수 있다.
+  -  mapState([ 'count' ]) state를 바로 가져와 쓸 수도 있고.
+  - mapState({callData(state){ return state.count + this.localCount; }}) 이렇게도 할 수 있다.
+  - 여러가지 방법은 공식문서 참조.
+## vuex의 getters
+* 컴포넌트의 data에 대한 computed의 기능과 같음. 
+* vuex의 state값에 추가적인 것을 할때 getters를 사용. 함수로 사용.
+* getters도 여러개가 있을 수 있으므로 mapGetters를 사용하여 helper를 사용할 수 있다.
+
+## Q n A
+* 추가적인 plugin을 쓸때는 Vue.use를 사용하면 this.$.... 이렇게 사용가능.
+* Vue.use는 import한 후 사용해야하므로 순서 중요함.
+
+## Vuex devtools 분석
+* vuex를 사용하면 state값중에 하나만 바뀌어도 화면에는 모두 다 render된다고 나옴.
+  - 성능상에서는 큰 문제가 없지만 컴포넌트를 나눈의미가 퇴색됨.
+  - 그래서 table을 한방에 하나의 컴포넌트에서 그리는 방법으로 다시 수정함.... 나는 이부분이 좀....
+  - 배열을 부분적으로 값변경이 이루어졌을때의 문제점.... 생각해볼 문제임..!!
+  - 컴포넌트를 분리해서 react의 memo나 그런 방법으로 부분 rendering하는 방법이 없을까....
+
+## slot(https://kr.vuejs.org/v2/guide/components-slots.html)
+* react의 children과 비슷함.
+* 자식 컴포넌트에 데이터를 넘겨주는 방법에는 props 외에 slot으로 넘겨주는 방법이 있다.
+* 컴포넌트 slot /컴포넌트 이런 방법으로 태그 사이에 넘겨줄 수 있다.
+* 장점 : 내부 자식 태그를 상위 컴포넌트에 넣어줘서 데이터등을 셋팅한 후 넘겨줄 수 있다.
+
+
 
 # 기타 참조할만한 강의
 ## youtube
