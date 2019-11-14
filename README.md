@@ -408,7 +408,7 @@ new Vue(NumberBaseball).$mount('#root');
 * let변수를 사용할때와 data에 넣을때의 차이는 화면에서 사용하느냐 아니냐의 차이.
 * methods에는 현재 화면과 연관이 있는 함수들만 넣어주고 공통적인 함수들은 따로 빼서 관리한다.
 
-## webpack watch 와 반응속도 체크
+## webpack watch 와 반응속도체크프로젝트진행
 * javascript 아닌 것들을 추가 할때마다 webpack의 rules에 loader를 추가해주면 webpack이 알아서 js output으로 합쳐서 만들어줌. (css, image, html 등)
 * webpack.config.js의 현재까지 큰 틀에서 추가 옵션들을 하나씩 추가해 나가면서 적용하면 됨.
 * 반응속도체크 프로젝트를 새로 생성.
@@ -712,6 +712,353 @@ module.exports = {
   }
 </style>
 ```
+
+## vue 라이프 사이클(https://kr.vuejs.org/v2/guide/instance.html#%EB%9D%BC%EC%9D%B4%ED%94%84%EC%82%AC%EC%9D%B4%ED%81%B4-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8)
+* 크게 created, mounted, updated, destroyed, 네가지만 알고 있어도 무방함.
+* 각 라이프 사이클 앞쪽에 before... 라이프사이클도 있다.
+
+## 가위바위보 게임 완성 devtools분석
+* 
+
+## vue 스타일 가이드(https://kr.vuejs.org/v2/style-guide/index.html)
+* 스타일가이드의 A,B정도 까지는 지키는게 좋음.
+
+# 로또추첨기 소스
+* LottoGenerator.vue 소스
+```
+<template>
+  <div>
+    <div>당첨 숫자</div>
+    <div id="결과창">
+      <lotto-ball v-for="ball in winBalls" :key="ball" :number="ball"></lotto-ball>
+    </div>
+    <div>보너스</div>
+    <lotto-ball v-if="bonus" :number="bonus"></lotto-ball>
+    <button v-if="redo" @click="onClickRedo">한 번 더!</button>
+  </div>
+</template>
+
+<script>
+  import LottoBall from './LottoBall';
+
+  function getWinNumbers() {
+    const candidate = Array(45).fill().map((v, i) => i + 1);
+    const shuffle = [];
+    while (candidate.length > 0) {
+      shuffle.push(candidate.splice(Math.floor(Math.random() * candidate.length), 1)[0]);
+    }
+    const bonusNumber = shuffle[shuffle.length - 1];
+    const winNumbers = shuffle.slice(0, 6).sort((p, c) => p - c);
+    return [...winNumbers, bonusNumber];
+  }
+
+  const timeouts = [];
+  export default {
+    components: {
+      LottoBall,
+    },
+    data() {
+      return {
+        winNumbers: getWinNumbers(),
+        winBalls: [],
+        bonus: null,
+        redo: false,
+      };
+    },
+    methods: {
+      onClickRedo() {
+        this.winNumbers = getWinNumbers();
+        this.winBalls = [];
+        this.bonus = null;
+        this.redo = false;
+        this.showBalls();
+      },
+      showBalls() {
+        for (let i = 0; i < this.winNumbers.length - 1; i++) {
+          timeouts[i] = setTimeout(() => {
+            this.winBalls.push(this.winNumbers[i]);
+          }, (i + 1) * 1000);
+        }
+        timeouts[6] = setTimeout(() => {
+          this.bonus = this.winNumbers[6];
+          this.redo = true;
+        }, 7000);
+      },
+    },
+    mounted() {
+      this.showBalls();
+    },
+    beforeDestroy() {
+      timeouts.forEach((t) => {
+        clearTimeout(t);
+      });
+    },
+  };
+</script>
+
+<style scoped>
+
+</style>
+```
+* LottoBall.vue 소스
+  - name은 안적어도 됨. 파일명이 컴포넌트 이름이 된다.
+  - number는 상위 컴포넌트에서 넘겨받은 Number를 받아서 props:{number:Number} 와 같이 넣어줘서 사용할 수 있다. :Number는 값 type을 정해준것.
+```
+<template>
+  <div class="ball" :style="styleObject">{{number}}</div>
+</template>
+
+<script>
+  export default {
+    name: 'LottoBall',
+    props: {
+      number: Number,
+    },
+    computed: {
+      styleObject() {
+        let background;
+        if (this.number <= 10) {
+          background = 'red';
+        } else if (this.number <= 20) {
+          background = 'orange';
+        } else if (this.number <= 30) {
+          background = 'yellow';
+        } else if (this.number <= 40) {
+          background = 'blue';
+        } else {
+          background = 'green';
+        }
+        return {
+          background,
+        };
+      }
+    },
+  }
+</script>
+
+<style>
+  .ball {
+    display: inline-block;
+    border: 1px solid black;
+    border-radius: 20px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 20px;
+    text-align: center;
+    margin-right: 20px;
+  }
+</style>
+```
+
+## 자식컴포넌트와 props
+* LottoBall컴포넌트의 number는 상위 컴포넌트에서 넘겨받은 props이다
+  - number는 상위 컴포넌트에서 넘겨받은 Number를 받아서 props:{number:Number} 와 같이 넣어줘서 사용할 수 있다. :Number는 값 자료형 type을 정해준것.
+    - type을 정하지 않고 props : ['number'] 이렇게도 쓸 수 있다.
+    - 하지만 스타일가이드 상 자료형을 정해주는것이 권장사항임.
+  - 상위컴포넌트에서는 속성으로 넘겨주면 자식컴포넌트는 props로 사용된다.
+    - v-bind를 사용하면 값을 data 변수값으로 넣을 수 있다.
+* 하위 props 값은 바꿀 수 없다.
+* 컴포넌트명은 소스상에서는 파스칼케이스로 적으면 tag상에서는 케밥케이스로 사용된다. (LottoBall --- lotto-ball)
+
+
+## 로또 추첨기 구현하기
+* v-for 는 반드시 keys를 넣어준다.
+* 자바스크립트 소스 const candidate = Array(45).fill().map((v, i) => i + 1); 분석필요.
+
+## watch 사용해보기(https://joshua1988.github.io/vue-camp/syntax/watch.html)
+* data 어떤값이 바뀌었는지 아닌지 감시하는 함수
+  - winBalls를 감시하고자 한다면 
+  - winBalls(현재값, 예전값){ 처리 } 객체나 배열은 참조관계라 현재값, 예전값이 같을 수 있음.
+  - 하지만 watch는 최대한 자제하는게 좋음. 잘못하면 무한반복
+* computed는 하나의 값을 return하고 watch는 특정동작을 실행하는것... 
+* react, vue에서 watch는 사용하지 않는게 좋음.
+
+## 2차원배열(테이블 구조 짜기) 틱택토
+* TicTacToe.vue
+```
+<template>
+  <div>
+    <div>{{turn}}님의 턴입니다.</div>
+    <table-component :table-data="tableData" />
+    <div v-if="winner">{{winner}}님의 승리!</div>
+  </div>
+</template>
+
+<script>
+  import TableComponent from './TableComponent';
+
+  export default {
+    components: {
+      TableComponent,
+    },
+    data() {
+      return {
+        tableData: [
+          ['', '', ''],
+          ['', '', ''],
+          ['', '', ''],
+        ],
+        turn: 'O',
+        winner: '',
+      };
+    },
+    methods: {
+      onChangeData() {
+        // this.tableData[1][0] = 'X'; 작동하지 않음
+        this.$set(this.tableData[1], 0, 'X'); // Vue.set과 동일
+      }
+    },
+  };
+</script>
+
+<style>
+  table {
+    border-collapse: collapse;
+  }
+  td {
+    border: 1px solid black;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+  }
+</style>
+```
+* TableComponent.vue
+```
+<template>
+  <table>
+    <tr-component v-for="(rowData, index) in tableData" :key="index" :row-data="rowData" :row-index="index"></tr-component>
+  </table>
+</template>
+
+<script>
+  import TrComponent from './TrComponent';
+
+  export default {
+    props: {
+      tableData: Array,
+    },
+    components: {
+      TrComponent,
+    },
+  };
+</script>
+```
+* TdComponent.vue
+```
+<template>
+  <td @click="onClickTd">{{cellData}}</td>
+</template>
+
+<script>
+  export default {
+    props: {
+      cellData: String,
+      rowIndex: Number,
+      cellIndex: Number,
+    },
+    methods: {
+      onClickTd() {
+        if (this.cellData) return;
+
+        const rootData = this.$root.$data;
+        this.$set(rootData.tableData[this.rowIndex], this.cellIndex, rootData.turn);
+
+        let win = false;
+        if (rootData.tableData[this.rowIndex][0] === rootData.turn && rootData.tableData[this.rowIndex][1] === rootData.turn && rootData.tableData[this.rowIndex][2] === rootData.turn) {
+          win = true;
+        }
+        if (rootData.tableData[0][this.cellIndex] === rootData.turn && rootData.tableData[1][this.cellIndex] === rootData.turn && rootData.tableData[2][this.cellIndex] === rootData.turn) {
+          win = true;
+        }
+        if (rootData.tableData[0][0] === rootData.turn && rootData.tableData[1][1] === rootData.turn && rootData.tableData[2][2] === rootData.turn) {
+          win = true;
+        }
+        if (rootData.tableData[0][2] === rootData.turn && rootData.tableData[1][1] === rootData.turn && rootData.tableData[2][0] === rootData.turn) {
+          win = true;
+        }
+
+        if (win) { // 이긴 경우: 3줄 달성
+          rootData.winner = rootData.turn;
+          rootData.turn = 'O';
+          rootData.tableData = [['', '', ''], ['', '', ''], ['', '', '']];
+        } else { // 무승부
+          let all = true; // all이 true면 무승부라는 뜻
+          rootData.tableData.forEach((row) => { // 무승부 검사
+            row.forEach((cell) => {
+              if (!cell) {
+                all = false;
+              }
+            });
+          });
+          if (all) { // 무승부
+            rootData.winner = '';
+            rootData.turn = 'O';
+            rootData.tableData = [['', '', ''], ['', '', ''], ['', '', '']];
+          } else {
+            rootData.turn = rootData.turn === 'O' ? 'X' : 'O';
+          }
+        }
+      }
+    }
+  };
+</script>
+```
+* TrComponent.vue
+```
+<template>
+  <tr>
+    <td-component v-for="(cellData, index) in rowData" :key="index" :cell-data="cellData" :cell-index="index"
+                  :row-index="rowIndex"></td-component>
+  </tr>
+</template>
+
+<script>
+  import TdComponent from './TdComponent';
+
+  export default {
+    components: {
+      TdComponent,
+    },
+    data() {
+      return {
+        parent: '내가 니 애비다',
+      };
+    },
+    props: {
+      rowData: Array,
+      rowIndex: Number,
+    },
+  };
+</script>
+```
+* table, tr, td 컴포넌트를 다 나눈 이유
+  - 하나의 칸(td)를 render를 해야하는데 전체table이 render가 되는 현상을 방지하기 위하여 각각 컴포넌트로 나눔.
+  - 최상위 컴포넌트에서 props로 자식 -- 자식  -- 자식 이런식으로 넘겨줘야함. 불편.
+
+
+## this.$root, this.$parent
+* vuex를 사용하기 이전에 자식-자식-자식 넘겨주는 props의 불편함을 좀 개선하기 위하여 $root, $parent를 사용할 수 있다.
+  - this.$root.$data : 이런식으로 최상위 컴포넌트의 data에 접근할 수 있다. 리엑트는 이런기능이 아예없음.
+  - this.$parent.$data : 현재 컴포넌트의 바로 위 컴포넌트의 data에 접근할 수 있다.
+  - 자식컴포넌트에서 부모의 data를 변경할 수 있다.
+  - Vue에서 배열, 객체의 값을 인덱스를 이용해서 바꾸면 화면에 반영은 안됨. 하지만 method를 사용해서 바꾸면 반영이 됨.
+
+## Vue.set, this.$set
+* 배열, 객체의 값을 인덱스를 이용해서 값을 바꾸면 화면에는 반영이 안되므로 사용하는 Vue.set
+* Vue.set(this.tableData[1], 0, 'X')
+* this.$set() // Vue.set과 동일 --- Vue를 import하지 않아도 되서 편리함.
+
+## 틱택토 완성하기
+* 
+
+## EventBus 사용하기
+* 
+
+## Vuex 구조 셋팅
+* 
+
 
 # 기타 참조할만한 강의
 ## youtube
