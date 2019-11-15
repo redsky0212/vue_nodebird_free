@@ -1196,6 +1196,101 @@ computed: {
 ## 타이머 켜고 끄기
 * 
 
+## 칸 클릭하기
+* 
+
+## 지뢰밟기, 주변 지뢰 개수 찾기
+* 
+
+## 주변 칸 한번에 열기
+* 
+
+## 승리 조건 체크하기와 마무리
+* 
+
+## Vue Router설정하기(https://router.vuejs.org/kr/)
+* npm i vue-router
+* import VueRouter from 'vue-router';
+* Vue.use('VueRouter') 해줘야함.
+* 라우터 사용시 사용 컴포넌트에 routes.js를 불러와서 연결해줘야한다.
+* routes.js에서는 아래와 같이 코딩. (라우터 정의)
+```
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import NumberBaseball from '../3.숫자야구/NumberBaseball';
+import ResponseCheck from '../4.반응속도체크/ResponseCheck';
+import RockScissorsPaper from '../5.가위바위보/RockScissorsPaper';
+import LottoGenerator from '../6.로또/LottoGenerator';
+import GameMatcher from './GameMatcher';
+
+Vue.use(VueRouter);
+
+export default new VueRouter({
+  mode: 'history',
+  routes: [
+    { path: '/number-baseball', component: NumberBaseball },
+    { path: '/response-check', component: ResponseCheck },
+    { path: '/rock-scissors-paper', component: RockScissorsPaper },
+    { path: '/lotto-generator', component: LottoGenerator },
+    { path: '/game/:name', component: GameMatcher } // /game
+  ],
+});
+```
+* 라우터 사용 컴포넌트 부분 소스
+  - router-link로 이동할 navigate 공통메뉴를 코딩한다.
+  - 화면이 바뀌는 부분은 router-view 로 코딩한다.
+```
+<template>
+  <div>
+    <div>
+      <router-link to="/game">게임 매쳐</router-link>
+      <router-link to="/game/number-baseball?pages=3&offset=10&limit=1&sort=createdAt">숫자야구</router-link>
+      <router-link to="/game/response-check">반응속도</router-link>
+      <router-link to="/game/rock-scissors-paper">가위바위보</router-link>
+      <router-link to="/game/lotto-generator">로또생성기</router-link>
+    </div>
+    <router-view></router-view> // 화면이 바뀌는 부분
+  </div>
+</template>
+
+<script>
+  import router from './routes';
+
+  export default {
+    router,
+  };
+</script>
+
+<style>
+  table {
+    border-collapse: collapse;
+  }
+  td {
+    border: 1px solid black;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+  }
+</style>
+```
+
+## router-view와 히스토리 라우터
+* router로 이동하여 router-view에 전환된 화면이 표현되고 url에는 해쉬(#)주소로 바뀌면서 이동된다.
+  - 해쉬(#)url방식은 검색엔진 노출도 잘 안돼고 해서 실무에서는 주로 히스토리 라우터url방식을 많이 쓴다.
+  - 히스토리 라우터로 바꾸기 
+    - url 중간에 해쉬(#)삭제하기 (router가 눈속임 주소로 만들어서 #제거한 형태로 새롭게 url을 만든것이다.)
+      - export default new VueRouter({ mode: 'history', ..... 이렇게 mode설정을 history로 해준다.
+    - 하지만 브라우져 refresh했을경우에는 화면이 오류가 난다.
+      - refresh를 했을때는 화면을 가져오기 위해 서버로 요청하기 때문에 실제 url이 아니므로 오류가 남(Cannot GET / ....)
+      - 그래서 화면도 서버가 필요함. 서버에도 위url을 각각 등록해줘야한다. 
+      - webpack-dev-server는 커스터마이징이 힘드므로 거기에 만들기는 힘듬.
+      - 나중에 서버 할때 이부분 해결해줘야함.
+
+## 동적 라우트 매칭(https://router.vuejs.org/kr/guide/essentials/dynamic-matching.html)
+* routes에 { path: '/game/:name', component: GameMatcher } // /game 이런식으로 콜론으로 설정한다.
+  - 해당 페이지에서는 동적으로 넘어온 name에 대한 대처 코딩을 해야한다.
+  - 해당 컴포넌트에서는 this.$router, this.$route 를 이용하여 다양한 코딩이 가능
+  - $route.params.넘겨준이름 ---  가져올 수 있다.
 
 
 # 기타 참조할만한 강의
