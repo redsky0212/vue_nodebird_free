@@ -1292,6 +1292,10 @@ export default new VueRouter({
   - 해당 컴포넌트에서는 this.$router, this.$route 를 이용하여 다양한 코딩이 가능
   - $route.params.넘겨준이름 ---  가져올 수 있다.
 
+## 주소 쿼리스트링
+* 주소뒤에 ? 해서 붙였을때 처리방법
+  - $route.query.넘겨준이름 --- 가져올 수 있다.
+* 쿼리스트링은 서버에도 전달을 할 수있다. 하지만 해쉬(#)에 담으면 서버에서는 가져올 수없다... 해쉬는 frontend쪽에서는 사용.
 
 # 기타 참조할만한 강의
 ## youtube
